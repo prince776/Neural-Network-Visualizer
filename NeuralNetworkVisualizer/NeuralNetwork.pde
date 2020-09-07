@@ -51,6 +51,19 @@ public class NeuralNetwork {
     return A2.toArray();
 
   }
+  
+  public Matrix predict(Matrix X)
+  {
+    Matrix Z1 = matrixMultiply(weights_ih, X);
+    Z1.add(bias_h);
+    Matrix A1 = ReLU(Z1);
+    
+    Matrix Z2 = matrixMultiply(weights_ho, A1);
+    Z2.add(bias_o);
+    Matrix A2 = linear(Z2);
+    
+    return A2;
+  }
   /**
    * 
    * @param input_array
@@ -94,7 +107,64 @@ public class NeuralNetwork {
     weights_ho.subtract(dW2);
     bias_o.subtract(db2);
   }
-
+  
+  public void train(Matrix X, Matrix Y)
+  {
+    // Hidden layer.
+    Matrix Z1 = matrixMultiply(weights_ih, X);
+    Z1.add(this.bias_h);    
+    Matrix A1 = ReLU(Z1);
+    
+    // Output layer.
+    Matrix Z2 = matrixMultiply(weights_ho, A1);
+    Z2.add(bias_o);
+    Matrix A2 = linear(Z2);
+    
+    Matrix dZ2 = subtract(A2, Y);
+    dZ2.multiply(2);
+    dZ2.scalarMultiply(dLinear(Z2));
+    
+    Matrix dW2 = matrixMultiply(dZ2, transpose(A1));
+    dW2.multiply(1f / (float)Y.cols);
+    Matrix db2 = new Matrix(bias_o.rows, bias_o.cols);
+    for (int i = 0; i < db2.rows; i++)
+    {
+      float db = 0;
+      for (int j = 0; j < dZ2.cols; j++)
+        db += dZ2.data[i][j];
+      db /= (float)dZ2.cols;
+      db2.data[i][0] = db;
+    }
+    
+    Matrix dZ1 = matrixMultiply(transpose(weights_ho), dZ2);
+    dZ1.scalarMultiply(dReLU(Z1));
+    
+    Matrix dW1 = matrixMultiply(dZ1, transpose(X));
+    dW1.multiply(1f / (float)Y.cols);
+    Matrix db1 = new Matrix(bias_h.rows, bias_h.cols);
+    for (int i = 0; i < db1.rows; i++)
+    {
+      float db = 0;
+      for (int j = 0; j < dZ1.cols; j++)
+        db += dZ1.data[i][j];
+      db /= (float)dZ1.cols;
+      db1.data[i][0] = db;
+    }    
+    
+    dW1.multiply(learningRate);
+    db1.multiply(learningRate);
+    dW2.multiply(learningRate);
+    db2.multiply(learningRate);
+    
+    weights_ih.subtract(dW1);
+    bias_h.subtract(db1);
+    weights_ho.subtract(dW2);
+    bias_o.subtract(db2);
+    
+    dW1.print();
+    println();
+    
+  }
   
   public float getLearningRate() {
     return learningRate;

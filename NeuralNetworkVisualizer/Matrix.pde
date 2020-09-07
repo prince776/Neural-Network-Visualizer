@@ -44,6 +44,13 @@ public class Matrix {
         data[i][j] = 0;
   }
   
+  public Matrix(float[][] data)
+  {
+    this.rows = data.length;
+    this.cols = data[0].length;
+    this.data = data;
+  }
+  
   public void print()
   {
     for (int i = 0; i < rows; i++)
@@ -106,36 +113,39 @@ public class Matrix {
   
   // Matrix operations
   public void add(Matrix m){
-    if (rows != m.rows || cols != m.cols)
-    {
-      println("Can't add matrices");
-      return;
-    }
+    //if (rows != m.rows || cols != m.cols)
+    //{
+    //  println("Can't add matrices");
+    //  return;
+    //}
+    
     for(int i = 0; i < rows; i++)
       for(int j = 0; j < cols; j++)
-        this.data[i][j] += m.data[i][j];
+        this.data[i][j] += m.data[i % m.rows][j % m.cols];
   }
   
   public void subtract(Matrix m){
-    if (rows != m.rows || cols != m.cols)
-    {
-      println("Can't subtract matrices");
-      return;
-    }
+    //if (rows != m.rows || cols != m.cols)
+    //{
+    //  println("Can't subtract matrices");
+    //  return;
+    //}
+    
     for(int i = 0; i < rows; i++)
       for(int j = 0; j < cols; j++)
-        this.data[i][j] -= m.data[i][j];
+        this.data[i][j] -= m.data[i % m.rows][j % m.cols];
   }
   
   public void scalarMultiply(Matrix m){
-    if (rows != m.rows || cols != m.cols)
-    {
-      println("Can't scalar multiply matrices");
-      return;
-    }
+    //if (rows != m.rows || cols != m.cols)
+    //{
+    //  println("Can't scalar multiply matrices");
+    //  return;
+    //}
+    
     for(int i = 0; i < rows; i++)
       for(int j = 0; j < cols; j++)
-        this.data[i][j] *= m.data[i][j];
+        this.data[i][j] *= m.data[i % m.rows][j % m.cols];
   }
   
   public void matrixMultiply(Matrix m){
@@ -190,47 +200,52 @@ public Matrix transpose(Matrix m){
 }
 
 public Matrix scalarMultiply(Matrix a, Matrix b){
-  if (a.rows != b.rows || a.cols != b.cols)
-  {
-    println("Can't multiply matrices");
-    return null;
-  }
-  Matrix result = new Matrix(a.rows, a.cols);
+  //if (a.rows != b.rows || a.cols != b.cols)
+  //{
+  //  println("Can't multiply matrices");
+  //  return null;
+  //}
+  int maxRows = Math.max(a.rows, b.rows);
+  int maxCols = Math.max(a.cols, b.cols);
+    
+  Matrix result = new Matrix(maxRows, maxCols);
   for(int i = 0; i < result.rows; i++)
     for(int j = 0; j < result.cols; j++)
-      result.data[i][j] = a.data[i][j] * b.data[i][j];
+      result.data[i % maxRows][j % maxCols] = a.data[i % a.rows][j % a.cols] * b.data[i % b.rows][j % b.cols];
 
   return result;
 }
 
-public Matrix add(Matrix a, Matrix b){
-  Matrix result = new Matrix(a.rows, a.cols);
+public Matrix add(Matrix a, Matrix b){  
+  //if (a.rows != b.rows || a.cols != b.cols)
+  //{
+  //  println("Can't add matrices");
+  //  return null;
+  //}
+  int maxRows = Math.max(a.rows, b.rows);
+  int maxCols = Math.max(a.cols, b.cols);
   
-  if (a.rows != b.rows || a.cols != b.cols)
-  {
-    println("Can't add matrices");
-    return null;
-  }
-  
+  Matrix result = new Matrix(maxRows, maxCols);
   for(int i = 0; i < result.rows; i++)
     for(int j = 0; j < result.cols; j++)
-      result.data[i][j] = a.data[i][j] + b.data[i][j];
+      result.data[i % maxRows][j % maxCols] = a.data[i % a.rows][j % a.cols] + b.data[i % b.rows][j % b.cols];
 
   return result;
 }
 
 public Matrix subtract(Matrix a, Matrix b){
-  Matrix result = new Matrix(a.rows, a.cols);
+  //if (a.rows != b.rows || a.cols != b.cols)
+  //{
+  //  println("Can't subtract matrices");
+  //  return null;
+  //}
+  int maxRows = Math.max(a.rows, b.rows);
+  int maxCols = Math.max(a.cols, b.cols);
   
-  if (a.rows != b.rows || a.cols != b.cols)
-  {
-    println("Can't subtract matrices");
-    return null;
-  }
-  
+  Matrix result = new Matrix(maxRows, maxCols);
   for(int i = 0; i < result.rows; i++)
     for(int j = 0; j < result.cols; j++)
-      result.data[i][j] = a.data[i][j] - b.data[i][j];
+      result.data[i % maxRows][j % maxCols] = a.data[i % a.rows][j % a.cols] - b.data[i % b.rows][j % b.cols];
 
   return result;
 }

@@ -339,15 +339,32 @@ void draw()
   endShape();
   
   //Plot by nn
-  stroke(100, 100);
-  strokeWeight(7);
-  beginShape();  
+  stroke(100, 150);
+  strokeWeight(5);
+  
+  Matrix X = new Matrix(2, 40401);
+  int k = 0;
   for (int i = -100; i <= 100; i+=1)
   {
-    for (int j = -100; j <= 100; j+=7)
+    for (int j = -100; j <= 100; j+= 1)
     {
-      vertex(i, -nn.predict(new float[]{(float) i / scaleFactorX, (float) j / scaleFactorX})[0] * scaleFactorY, j);
-    }  
+      X.data[0][k] = (float)i / scaleFactorX;
+      X.data[1][k] = (float)j / scaleFactorX;
+      k++;
+      //vertex(i, -nn.predict(new float[]{(float) i / scaleFactorX, (float) j / scaleFactorX})[0] * scaleFactorY, j);
+    }
+  }
+  Matrix output = nn.predict(X);
+  
+  beginShape();  
+  k = 0;
+  for (int i = -100; i <= 100; i+=1)
+  {
+    for (int j = -100; j <= 100; j+= 1)
+    {
+      vertex(X.data[0][k] * scaleFactorX, -output.data[0][k] * scaleFactorY, X.data[1][k]  * scaleFactorX);
+      k++;
+    }
   }
   endShape();
   
@@ -359,6 +376,7 @@ void draw()
 
 void trainNN()
 {
+
   for (int i = 0; i < iterationsPerEpoch; i++)
   {
     float x = (float)(Math.random() * 2 - 1) * scaleFactorX;
@@ -367,6 +385,7 @@ void trainNN()
     x /= scaleFactorX;
     z /= scaleFactorX;
     y /= scaleFactorY;
+    
     nn.train(new float[]{x, z}, new float[]{y});
   }
 }
