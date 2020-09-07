@@ -1,3 +1,5 @@
+import org.quark.jasmine.*;
+
 import peasy.*;
 import controlP5.*; 
 
@@ -6,9 +8,13 @@ final int width = 1280, height = 720;
 int scaleFactorY = 100;
 int scaleFactorX = 100;
 
+String equation = "100 * sin(0.05 * x)";
+Expression expression;
+
 float f(float x, float z)
-{
-  return 100 * sin(0.05 * x);
+{  
+  float y = expression.eval(x, z).answer().toFloat();
+  return y;
 }
 
 
@@ -30,6 +36,9 @@ Button resetButton;
 Textfield numInputNodes, numHiddenNodes, numOutputNodes;
 Button startButton;
 
+Textfield equationTextfield;
+Button setEquationButton;
+
 // Others
 boolean pause = false;
 boolean canChangePause = true;
@@ -37,11 +46,15 @@ boolean canChangePause = true;
 boolean reset = false;
 boolean canReset = true;
 
+boolean setEquation = false;
+boolean canSetEquation = true;
+
 int nInput = 2, nHidden = 32, nOutput = 1;
 
 void init()
 {
   nn = new NeuralNetwork(nInput, nHidden, nOutput);
+  expression = Compile.expression(equation, true);
 }
 
 void addGui()
@@ -110,6 +123,7 @@ void addGui()
     public void controlEvent(CallbackEvent event)
     {
       canReset = true;
+      reset = false;
     }
   });
   
@@ -140,7 +154,7 @@ void addGui()
   .setPosition(210, 20)
   .setSize(50, 20)
   .setText("Neural Network Layers")
-  .setFont(createFont("arial", 14))
+  .setFont(createFont("arial", 16))
   .setColor(color(255, 0, 0));
 
   startButton = cp5.addButton("Start")
@@ -168,6 +182,52 @@ void addGui()
       canReset = true;
     }
   });
+  
+  cp5.addTextlabel("Enter mathematical function for NN to estimate")
+  .setPosition(width - 400, 20)
+  .setSize(50, 20)
+  .setText("Enter mathematical function for NN to estimate")
+  .setFont(createFont("arial", 16))
+  .setColor(color(255, 0, 0));
+  
+  cp5.addTextlabel("Y = ")
+  .setPosition(width - 400, 55)
+  .setSize(50, 20)
+  .setText("Y = ")
+  .setFont(createFont("arial", 16))
+  .setColor(color(255, 0, 0));
+  
+  equationTextfield = cp5.addTextfield("")
+  .setPosition(width - 360, 50)
+  .setSize(300, 30)
+  .setText(equation)
+  .setFont(createFont("arial", 16))
+  .setColor(color(255, 0, 0));
+  
+  setEquationButton = cp5.addButton("Set")
+  .setPosition(width - 250, 100)
+  .setSize(60,30); 
+ 
+  setEquationButton.onPress(new CallbackListener()
+  {
+    public void controlEvent(CallbackEvent event)
+    {
+      if (canSetEquation)
+      {
+        canSetEquation = false;
+        setEquation = true;
+      }
+    }
+  });
+  
+  setEquationButton.onRelease(new CallbackListener()
+  {
+    public void controlEvent(CallbackEvent event)
+    {
+      canSetEquation = true;
+      setEquation = false;
+    }
+  }); 
 }
 
 void setup()
@@ -227,6 +287,23 @@ void tick()
   if (!numHiddenNodes.isFocus())  numHiddenNodes.setText(nHidden + "");
   if (!numOutputNodes.isFocus())  numOutputNodes.setText(nOutput + "");
   
+  if (setEquation)
+  {
+    String newEquation = equationTextfield.getText();
+    String oldEquation = "" + equation;
+    try
+    {
+      equation = newEquation;
+      expression = Compile.expression(equation, true);
+      // for test
+    }catch(Exception e)
+    {
+      equation = oldEquation;
+      expression = Compile.expression(equation, true);
+    }
+    equationTextfield.setText(equation);
+    setEquation = false;
+  }
   
 }
 
