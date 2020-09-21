@@ -4,11 +4,12 @@ import peasy.*;
 import controlP5.*; 
 
 final int width = 1280, height = 720;
+final int gdWidth = 300, gdHeight = 300;
 
 int scaleFactorY = 100;
 int scaleFactorX = 100;
 
-String equation = "100 * sin(0.05 * x)";
+String equation = "0.0001 * x * x * x";
 Expression expression;
 
 float f(float x, float z)
@@ -17,13 +18,14 @@ float f(float x, float z)
   return y;
 }
 
-
 // Neural 
 NeuralNetwork nn;
 int iterationsPerEpoch = 5;
+//float[] lossVals;
 
 // Rendering
 PeasyCam cam;
+PGraphics g1;
 
 // GUI
 ControlP5 cp5; 
@@ -39,8 +41,12 @@ Button startButton;
 Textfield equationTextfield;
 Button setEquationButton;
 
+Button[] functionsButtons;
+String[] functions;
+int nFunctions = 5;
+
 // Others
-boolean pause = false;
+boolean pause = true;
 boolean canChangePause = true;
 
 boolean reset = false;
@@ -55,6 +61,7 @@ void init()
 {
   nn = new NeuralNetwork(nInput, nHidden, nOutput);
   expression = Compile.expression(equation, true);
+  //lossVals = nn.getLossValues(new float[]{1.0 / scaleFactorX , 1.0 / scaleFactorX}, new float[]{ f(1, 1) / scaleFactorY});
 }
 
 void addGui()
@@ -71,7 +78,7 @@ void addGui()
   .setColorLabel(0xffdddddd);
  
   iterationsPerEpochSlider = cp5.addSlider("Set Iterations per Epoch")
-  .setRange(0,1000)
+  .setRange(0,500)
   .setValue(iterationsPerEpoch)
   .setPosition(50, 250)
   .setSize(20,100)
@@ -228,14 +235,45 @@ void addGui()
       setEquation = false;
     }
   }); 
+  
+  functions = new String[nFunctions];
+  functionsButtons = new Button[nFunctions];
+  
+  functions[0] = "100 * sin(0.05 * x)";
+  functions[1] = "0.01 * x * x + 0.01 * z * z";
+  functions[2] = "0.01 * x * x + 0.01 * x * z";
+  functions[3] = "0.01 * x * z";
+  functions[4] = "0.0001 * x * x * x";
+  
+  for (int i = 0; i < nFunctions; i++)
+  {
+    functionsButtons[i] = cp5.addButton(functions[i])
+    .setPosition(width - 300, 200 + i * 50)
+    .setSize(200,40)
+      .setFont(createFont("arial", 16));
+    final String s = functions[i];
+    functionsButtons[i].onPress(new CallbackListener()
+    {
+      public void controlEvent(CallbackEvent event)
+      {
+        if (equation.equals(s))
+          return;
+        equation = s;
+        expression = Compile.expression(equation, true);
+        equationTextfield.setText(equation);
+      }
+    });  
+  }
+  
 }
 
 void setup()
 {
   size(1280, 720, P3D);
   frameRate(60);
-  cam = new PeasyCam(this,width / 2, height / 2 - 50, -100, 500);
-
+  cam = new PeasyCam(this, width / 2, height / 2 - 50, -100, 600);
+  g1 = createGraphics(gdWidth, gdHeight, P3D);   
+  
   init();
   addGui();
 }
@@ -318,7 +356,7 @@ void draw()
     
   // Create Axes
   strokeWeight(1);
-  stroke(255, 0, 0);
+  stroke(255, 0, 0);  
   line(-1000, 0, 0, 1000, 0, 0);
   stroke(0, 255, 0);
   line(0, -1000, 0, 0, 1000, 0);
@@ -370,8 +408,42 @@ void draw()
   
   cam.beginHUD();
   cp5.draw();
-  cam.endHUD();
   
+  
+  /**
+  g1.beginDraw();
+  
+  g1.background(100);
+  g1.translate(gdWidth / 2, gdHeight / 2);
+  
+  g1.strokeWeight(1);
+  g1.stroke(255, 0, 0);  
+  g1.line(-gdWidth / 2, 0, 0, gdWidth / 2, 0, 0);
+  g1.stroke(0, 255, 0);
+  g1.line(0, -gdHeight / 2, 0, 0, gdHeight / 2, 0);
+  g1.stroke(0, 0, 255);
+  
+  g1.noFill();
+  // Draw graph
+  g1.beginShape();
+  
+  int i = 0;
+  for (int w = -100; w <= 100; w++)
+  {
+    println(lossVals[i]);
+    g1.vertex(w, -lossVals[i++], 0);
+  }
+  
+  g1.endShape();
+  
+  g1.endDraw();
+  
+  //
+  //image(g1, width - gdWidth - 10, 250);
+  **/
+  
+  cam.endHUD();
+
 }
 
 void trainNN()

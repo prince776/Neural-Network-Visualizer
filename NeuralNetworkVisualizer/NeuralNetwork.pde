@@ -166,6 +166,50 @@ public class NeuralNetwork {
     
   }
   
+  float[] getLossValues(float[] x, float[] y)
+  {
+    float[] lossVals = new float[2000 + 1];
+    // weights from -10 to +10, with delta 0.1
+    
+    Matrix X = fromArray(x);
+    Matrix Y = fromArray(y);
+    
+    Matrix W_ih = new Matrix(this.hidden_nodes, this.input_nodes);
+    Matrix W_ho = new Matrix(this.output_nodes, this.hidden_nodes);
+    W_ih.randomize();
+    W_ho.randomize();
+    
+    Matrix B_h = new Matrix(hidden_nodes, 1, 0);
+    Matrix B_o = new Matrix(output_nodes, 1, 0);
+    B_h.randomize();
+    B_o.randomize();
+    
+    int i = 0;
+    for (int w = -1000; w <= 1000; w += 1)
+    {
+      W_ih.data[0][0] = w * 0.001;
+      
+      // FF
+      Matrix Z1 = matrixMultiply(W_ih, X);
+      Z1.add(B_h);
+      Matrix A1 = ReLU(Z1);
+      
+      Matrix Z2 = matrixMultiply(W_ho, A1);
+      Z2.add(B_o);
+      Matrix A2 = linear(Z2);
+      
+      Matrix loss = subtract(A2, Y);
+      loss.scalarMultiply(loss);
+      
+      lossVals[i] = loss.data[0][0];
+      i++;
+      
+    }
+    println(i);
+   
+    return lossVals; 
+  }
+  
   public float getLearningRate() {
     return learningRate;
   }

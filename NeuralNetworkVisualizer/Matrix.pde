@@ -44,6 +44,16 @@ public class Matrix {
         data[i][j] = 0;
   }
   
+  public Matrix(int rows, int cols, int val){
+    this.rows = rows;
+    this.cols = cols;
+    this.data = new float[rows][cols];
+    
+    for (int i = 0; i < rows; i++)
+      for (int j = 0; j < cols; j++)
+        data[i][j] = val;
+  }
+  
   public Matrix(float[][] data)
   {
     this.rows = data.length;
