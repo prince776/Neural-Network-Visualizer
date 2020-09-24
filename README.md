@@ -1,7 +1,7 @@
 # Neural-Network-Visualizer
 
 ## Introduction
-This project aims to visualize output of a basic 3 layered Neural Network(NN).
+This project aims to visualize output of a basic 3 layered Neural Network(NN). (Made from scratch).
 
 Neural networks are essentially universal function approximator, this program visualizes the output produced by a NN showing how, NN slowly estimates
 the provided function, while providing some customizable hyperparameters.
