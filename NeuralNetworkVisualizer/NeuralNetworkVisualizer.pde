@@ -314,11 +314,11 @@ void tick()
   {
     println("Bad Number");
   }
-  if (nInput == 0)
+  //if (nInput == 0)
     nInput = nn.input_nodes;
   if (nHidden == 0)
     nHidden = nn.hidden_nodes;
-  if (nOutput == 0)
+  //if (nOutput == 0)
     nOutput = nn.output_nodes;
   
   if (!numInputNodes.isFocus())  numInputNodes.setText(nInput + "");
